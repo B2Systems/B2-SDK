@@ -12,12 +12,13 @@ trait ManagesUsers
      * @param  integer $organisationId
      * @return User[]
      */
-    public function users($organisationId)
+    public function users($organisationId, array $options = [])
     {
         return $this->transformCollection(
-            $this->get("organisations/$organisationId/users")['users'],
+            $this->get("organisations/$organisationId/users", $options['query'] ?? [])['data'],
             User::class,
-            ['organisation_id' => $organisationId]
+            [],
+            $options['query']['with'] ?? []
         );
     }
 
@@ -28,10 +29,12 @@ trait ManagesUsers
      * @param  integer $organisationId
      * @return User
      */
-    public function user($userId, $organisationId)
+    public function user($organisationId, $userId, array $options = [])
     {
         return new User(
-            $this->get("organisations/$organisationId/users/$userId")['user'], $this
+            $this->get("organisations/$organisationId/users/$userId", $options['query'] ?? [])['data'],
+            $this,
+            $options['query']['with'] ?? []
         );
     }
 
@@ -43,15 +46,15 @@ trait ManagesUsers
      * @param  boolean $wait
      * @return User
      */
-    public function createUser($organisationId, array $data, $wait = true)
+    public function createUser($organisationId, array $data, array $options = [], $wait = true)
     {
         $user = $this->post("organisations/$organisationId/users", $data)['user'];
         if ($wait) {
-            return $this->retry($this->getTimeout(), function () use ($organisationId, $user) {
-                return $this->user($organisationId, $user['id']);
+            return $this->retry($this->getTimeout(), function () use ($organisationId, $user, $options) {
+                return $this->user($organisationId, $user['id'], $options);
             });
         }
-        return new User($user + ['organisation_id' => $organisationId], $this);
+        return new User($user, $this, $options['query']['with'] ?? []);
     }
 
     /**
@@ -61,8 +64,8 @@ trait ManagesUsers
      * @param  integer $userId
      * @return void
      */
-    public function deleteUser($organisationId, $userId)
+    public function deleteUser($userId)
     {
-        $this->delete("organisations/$organisationId/users/$userId");
+        $this->delete("users/$userId");
     }
 }

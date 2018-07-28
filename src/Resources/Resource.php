@@ -11,7 +11,14 @@ class Resource
      *
      * @var array
      */
-    public $attributes;
+    protected $attributes;
+
+    /**
+     * The resource relations.
+     *
+     * @var array
+     */
+    public $relations;
 
     /**
      * The B2 SDK instance.
@@ -27,8 +34,9 @@ class Resource
      * @param  B2 $b2
      * @return void
      */
-    public function __construct(array $attributes, $b2 = null)
+    public function __construct(array $attributes, $b2 = null, $relations = [])
     {
+        $this->relations = is_array($relations) ? $relations : [$relations];
         $this->attributes = $attributes;
         $this->b2 = $b2;
         $this->fill();
@@ -43,10 +51,13 @@ class Resource
     {
         foreach ($this->attributes as $key => $value) {
             $key = $this->camelCase($key);
+            if (in_array($key, $this->relations) && method_exists($this, $key)) {
+                $value = $this->$key($value);
+            }
             $this->{$key} = $value;
         }
     }
-    
+
     /**
      * Convert the key name to camel case.
      *

@@ -16,9 +16,9 @@ trait MakesHttpRequests
      * @param  string $uri
      * @return mixed
      */
-    private function get($uri)
+    private function get($uri, $query = [])
     {
-        return $this->request('GET', $uri);
+        return $this->request('GET', $uri, [], $query);
     }
 
     /**
@@ -28,9 +28,9 @@ trait MakesHttpRequests
      * @param  array $payload
      * @return mixed
      */
-    private function post($uri, array $payload = [])
+    private function post($uri, array $payload = [], $query = [])
     {
-        return $this->request('POST', $uri, $payload);
+        return $this->request('POST', $uri, $payload, $query);
     }
 
     /**
@@ -40,9 +40,9 @@ trait MakesHttpRequests
      * @param  array $payload
      * @return mixed
      */
-    private function put($uri, array $payload = [])
+    private function put($uri, array $payload = [], $query = [])
     {
-        return $this->request('PUT', $uri, $payload);
+        return $this->request('PUT', $uri, $payload, $query);
     }
 
     /**
@@ -52,9 +52,9 @@ trait MakesHttpRequests
      * @param  array $payload
      * @return mixed
      */
-    private function delete($uri, array $payload = [])
+    private function delete($uri, array $payload = [], $query = [])
     {
-        return $this->request('DELETE', $uri, $payload);
+        return $this->request('DELETE', $uri, $payload, $query);
     }
 
     /**
@@ -65,12 +65,12 @@ trait MakesHttpRequests
      * @param  array $payload
      * @return mixed
      */
-    private function request($verb, $uri, array $payload = [])
+    private function request($verb, $uri, array $payload = [], array $query = [])
     {
         $response = $this->guzzle->request($verb, $uri,
-            empty($payload) ? [] : ['form_params' => $payload]
+            (empty($payload) && empty($query)) ? [] : ['form_params' => $payload, 'query' => $query]
         );
-        if ($response->getStatusCode() != 200) {
+        if (substr($response->getStatusCode(), 0, 2) != 20) {
             return $this->handleRequestError($response);
         }
         $responseBody = (string) $response->getBody();
@@ -94,7 +94,7 @@ trait MakesHttpRequests
         }
         throw new \Exception((string) $response->getBody());
     }
-    
+
     /**
      * Retry the callback or fail after x seconds.
      *

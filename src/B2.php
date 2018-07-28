@@ -3,11 +3,14 @@
 namespace B2Systems\B2;
 
 use GuzzleHttp\Client as HttpClient;
+use B2Systems\B2\Actions\ManagesUsers;
+use B2Systems\B2\Actions\ManagesOrganisations;
+use B2Systems\B2\Actions\ManagesSchools;
 
 class B2
 {
-    use MakesHttpRequests;
-    
+    use MakesHttpRequests, ManagesUsers, ManagesOrganisations, ManagesSchools;
+
     /**
      * The B2 API Key.
      *
@@ -29,6 +32,8 @@ class B2
      */
     public $timeout = 30;
 
+    public $baseUrl = 'http://b2systems.test/api/';
+
     /**
      * Create a new B2 instance.
      *
@@ -40,8 +45,7 @@ class B2
     {
         $this->apiKey = $apiKey;
         $this->guzzle = $guzzle ?: new HttpClient([
-            'base_uri' => 'https://www.b2systems.co.uk/api/v1/',
-            'http_errors' => false,
+            'base_uri' => $this->baseUrl,
             'headers' => [
                 'Authorization' => 'Bearer '.$this->apiKey,
                 'Accept' => 'application/json',
@@ -58,10 +62,10 @@ class B2
      * @param  array $extraData
      * @return array
      */
-    protected function transformCollection($collection, $class, $extraData = [])
+    public function transformCollection($collection, $class, $extraData = [], $relations = [])
     {
-        return array_map(function ($data) use ($class, $extraData) {
-            return new $class($data + $extraData, $this);
+        return array_map(function ($data) use ($class, $extraData, $relations) {
+            return new $class($data, $this, $relations);
         }, $collection);
     }
 
