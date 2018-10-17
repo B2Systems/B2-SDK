@@ -14,7 +14,7 @@ trait ManagesSchools
     public function schools($organisationId, array $options = [])
     {
         return $this->transformCollection(
-            $this->get("organisations/$organisationId/schools", $options['query'] ?? [])['data'],
+            $this->get("api/organisations/$organisationId/schools", $options['query'] ?? [])['data'],
             School::class,
             [],
             $options['query']['with'] ?? []
@@ -30,7 +30,7 @@ trait ManagesSchools
     public function school($schoolId, array $options = [])
     {
         return new School(
-            $this->get("schools/$schoolId", $options['query'] ?? [])['data'],
+            $this->get("api/schools/$schoolId", $options['query'] ?? [])['data'],
             $this,
             $options['query']['with'] ?? []
         );
@@ -46,7 +46,7 @@ trait ManagesSchools
      */
     public function createSchool(array $data, array $options = [], $wait = true)
     {
-        $school = $this->post("schools", $data, $options['query'] ?? [])['data'];
+        $school = $this->post("api/schools", $data, $options['query'] ?? [])['data'];
         if ($wait) {
             return $this->retry($this->getTimeout(), function () use ($school, $options) {
                 return $this->school($school['id'], $options);
@@ -64,6 +64,6 @@ trait ManagesSchools
      */
     public function deleteSchool($schoolId)
     {
-        $this->delete("schools/$schoolId");
+        $this->delete("api/schools/$schoolId");
     }
 }

@@ -14,7 +14,7 @@ trait ManagesOrganisations
     public function organisations($options = [])
     {
         return $this->transformCollection(
-            $this->get("organisations", $options['query'] ?? [])['data'],
+            $this->get("api/organisations", $options['query'] ?? [])['data'],
             Organisation::class,
             [],
             $options['query']['with'] ?? []
@@ -30,7 +30,7 @@ trait ManagesOrganisations
     public function organisation($organisationId, $options = [])
     {
         return new Organisation(
-            $this->get("organisations/$organisationId", $options['query'] ?? [])['data'],
+            $this->get("api/organisations/$organisationId", $options['query'] ?? [])['data'],
             $this,
             $options['query']['with'] ?? []
         );
@@ -46,7 +46,7 @@ trait ManagesOrganisations
      */
     public function createOrganisation(array $data, array $options = [], $wait = true)
     {
-        $organisation = $this->post("organisations", $data)['data'];
+        $organisation = $this->post("api/organisations", $data)['data'];
         if ($wait) {
             return $this->retry($this->getTimeout(), function () use ($organisation, $options) {
                 return $this->organisation($organisation['id'], $options);
@@ -64,6 +64,6 @@ trait ManagesOrganisations
      */
     public function deleteOrganisation($organisationId)
     {
-        $this->delete("organisations/$organisationId");
+        $this->delete("api/organisations/$organisationId");
     }
 }

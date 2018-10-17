@@ -15,7 +15,7 @@ trait ManagesUsers
     public function users($organisationId, array $options = [])
     {
         return $this->transformCollection(
-            $this->get("organisations/$organisationId/users", $options['query'] ?? [])['data'],
+            $this->get("api/organisations/$organisationId/users", $options['query'] ?? [])['data'],
             User::class,
             [],
             $options['query']['with'] ?? []
@@ -32,7 +32,7 @@ trait ManagesUsers
     public function user($organisationId, $userId, array $options = [])
     {
         return new User(
-            $this->get("organisations/$organisationId/users/$userId", $options['query'] ?? [])['data'],
+            $this->get("api/organisations/$organisationId/users/$userId", $options['query'] ?? [])['data'],
             $this,
             $options['query']['with'] ?? []
         );
@@ -48,7 +48,7 @@ trait ManagesUsers
      */
     public function createUser($organisationId, array $data, array $options = [], $wait = true)
     {
-        $user = $this->post("organisations/$organisationId/users", $data)['user'];
+        $user = $this->post("api/organisations/$organisationId/users", $data)['user'];
         if ($wait) {
             return $this->retry($this->getTimeout(), function () use ($organisationId, $user, $options) {
                 return $this->user($organisationId, $user['id'], $options);
@@ -66,6 +66,6 @@ trait ManagesUsers
      */
     public function deleteUser($userId)
     {
-        $this->delete("users/$userId");
+        $this->delete("api/users/$userId");
     }
 }
