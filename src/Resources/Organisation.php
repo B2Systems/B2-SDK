@@ -40,6 +40,13 @@ class Organisation extends Resource
     public $users;
 
     /**
+     * Whether this organisation is in demo mode.
+     *
+     * @var Boolean
+     */
+    public $isDemo;
+
+    /**
      * Delete the given user.
      *
      * @return void

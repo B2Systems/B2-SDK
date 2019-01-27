@@ -18,6 +18,13 @@ class School extends Resource
      */
     public $name;
 
+    /**
+     * Whether this school is in demo mode.
+     *
+     * @var Boolean
+     */
+    public $isDemo;
+
 
     /**
      * Delete the given user.
